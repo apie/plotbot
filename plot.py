@@ -29,7 +29,7 @@ def send_welcome(message):
 @bot.message_handler(func=lambda m: True)
 def echo_all(message):
     if not message.text.isnumeric():
-        return bot.reply_to(message, 'Please send an integer number')
+        return bot.reply_to(message, 'Please send a positive integer number')
     num = int(message.text)
     logging.info(num)
     store_number(num)
