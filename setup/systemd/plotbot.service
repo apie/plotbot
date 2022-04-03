@@ -1,0 +1,16 @@
+[Unit]
+Description=Plotbot
+After=syslog.target
+
+[Service]
+Type=simple
+User=telegram
+Group=telegram
+Environment=PYTHONUNBUFFERED=1
+WorkingDirectory=/home/telegram/telegram/bots/plotbot/
+ExecStart=/home/telegram/telegram/bots/plotbot/venv/bin/python bot.py
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target
