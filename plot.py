@@ -15,7 +15,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 DBFILE = os.path.join(SCRIPT_DIR, "plotbot.db")
 
 bot = telebot.TeleBot(TOKEN)
-con = lite.connect(DBFILE,  detect_types=lite.PARSE_DECLTYPES)
+con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
 with con:
     cur = con.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS log(date TIMESTAMP, num INT)")
@@ -23,7 +23,7 @@ with con:
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-	bot.reply_to(message, "Send me a number and i will reply with a graph of all the received numbers.")
+    bot.reply_to(message, "Send me a number and i will reply with a graph of all the received numbers.")
 
 
 @bot.message_handler(func=lambda m: True)
@@ -39,14 +39,14 @@ def echo_all(message):
 
 
 def store_number(num):
-    con = lite.connect(DBFILE,  detect_types=lite.PARSE_DECLTYPES)
+    con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
     with con:
         cur = con.cursor()
         cur.execute("INSERT INTO log VALUES(?, ?);", (datetime.datetime.now(), num))
 
 
 def generate_plot():
-    con = lite.connect(DBFILE,  detect_types=lite.PARSE_DECLTYPES)
+    con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
     with con:
         cur = con.cursor()
         res = cur.execute("SELECT date, num FROM log ORDER BY date;")
@@ -54,7 +54,7 @@ def generate_plot():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    p = ax.plot(x, y, 'b')
+    ax.plot(x, y, 'b')
     ax.set_xlabel('Date')
     plt.xticks(rotation=20)
     # plt.show()
@@ -62,5 +62,6 @@ def generate_plot():
     plt.savefig(buf, format='png')
     buf.seek(0)
     return buf
+
 
 bot.infinity_polling()
