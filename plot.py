@@ -18,7 +18,7 @@ bot = telebot.TeleBot(TOKEN)
 con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
 with con:
     cur = con.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS log(date TIMESTAMP, num INT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS log(user_id TXT, date TIMESTAMP, num INT)")
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -31,25 +31,26 @@ def echo_all(message):
     if not message.text.isnumeric():
         return bot.reply_to(message, 'Please send a positive integer number')
     num = int(message.text)
-    logging.info(num)
-    store_number(num)
-    photo = generate_plot()
-    bot.send_photo(message.from_user.id, photo)
+    user = message.from_user
+    logging.info('User %s (%s): %s', user.id, user.username, num)
+    store_number(user_id=user.id, num=num)
+    photo = generate_plot(user.id)
+    bot.send_photo(user.id, photo)
     photo.close()
 
 
-def store_number(num):
+def store_number(user_id, num):
     con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
     with con:
         cur = con.cursor()
-        cur.execute("INSERT INTO log VALUES(?, ?);", (datetime.datetime.now(), num))
+        cur.execute("INSERT INTO log (user_id, date, num) VALUES(?, ?, ?);", (user_id, datetime.datetime.now(), num))
 
 
-def generate_plot():
+def generate_plot(user_id):
     con = lite.connect(DBFILE, detect_types=lite.PARSE_DECLTYPES)
     with con:
         cur = con.cursor()
-        res = cur.execute("SELECT date, num FROM log ORDER BY date;")
+        res = cur.execute("SELECT date, num FROM log WHERE user_id == ? ORDER BY date;", (user_id,))
     x, y = zip(*res)
     fig = plt.figure()
     ax = fig.add_subplot(111)
